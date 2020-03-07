@@ -1,0 +1,67 @@
+﻿@page "/profile"
+@using Kibzee.Models
+@using Kibzee.Services
+@using Microsoft.AspNetCore.Identity
+@inject ProfileDataService ProfileService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<IdentityUser> UserManager
+@attribute [Authorize]
+
+<p><em>@status</em></p>
+
+@if (contactDetails == null || instrumentList == null)
+{
+}
+else
+{
+    <h1>@contactDetails.Email</h1>
+    <h2>My Instruments</h2>
+    <div class="row" style="padding-top:10px" tabindex="0">
+        <div class="col-md-9">
+            <table id="mytable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Instrument Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int rownum = 0; }
+                    @foreach (var inst in instrumentList)
+                    {
+                        <tr>
+                            <td>@inst.InstId</td>
+                            <td>@inst.InstrumentName</td>
+                        </tr>
+                        rownum++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+
+@code
+{
+    List<Instruments> instrumentList;
+    ContactDetails contactDetails;
+    int userID = -1;
+    string userEmail;
+    string status = "Loading...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var currentUser = await UserManager.GetUserAsync(user);
+        userEmail = currentUser.Email;
+        userID = await ProfileService.GetUserIDFromEmail(userEmail);
+        while (userID == -1) ;
+        instrumentList = await ProfileService.GetInstrumentsByUserId(userID);
+        contactDetails = await ProfileService.GetContactDetailsByUserId(userID);
+        while (instrumentList == null || contactDetails == null) ;
+        status = "";
+    }
+}
+

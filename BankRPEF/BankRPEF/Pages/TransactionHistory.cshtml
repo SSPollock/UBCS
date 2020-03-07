@@ -1,0 +1,33 @@
+﻿@page
+@model BankRPEF.Pages.TransactionHistoryModel
+@{
+    ViewData["Title"] = "TransactionHistory";
+}
+
+<h1>TransactionHistory</h1>
+<table id="TransactionHistoryTable" class="table" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Trans ID</th>
+            <th></th>
+            <th>Date</th>
+            <th>From Acct</th>
+            <th>To Acct</th>
+            <th>Ammount</th>
+            <th>Fee</th>
+            <th>Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.TransactionHistory)
+        {
+            <tr>
+                @foreach (var property in item.GetType().GetProperties())
+                {
+                    <td>@property.GetValue(item)</td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+
